@@ -135,4 +135,13 @@ class MainViewModel(private val repository: TitleRepository) : ViewModel() {
             }
         })
     }
+
+    fun startProcessing() {
+        viewModelScope.launch {
+            while (true) {
+                println("process")
+                delay(1000)
+            }
+        }
+    }
 }

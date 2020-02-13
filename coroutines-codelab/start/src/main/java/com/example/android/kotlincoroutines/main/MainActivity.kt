@@ -16,6 +16,7 @@
 
 package com.example.android.kotlincoroutines.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
@@ -26,6 +27,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
 import com.example.android.kotlincoroutines.R
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_main.*
 
 /**
  * Show layout.activity_main and setup data binding.
@@ -81,6 +83,14 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(rootLayout, text, Snackbar.LENGTH_SHORT).show()
                 viewModel.onSnackbarShown()
             }
+        }
+
+        startProcessing.setOnClickListener {
+            viewModel.startProcessing()
+        }
+
+        openSecondActivity.setOnClickListener {
+            startActivity(Intent(this, SecondActivity::class.java))
         }
     }
 }
