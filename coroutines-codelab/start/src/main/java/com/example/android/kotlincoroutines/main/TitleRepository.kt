@@ -46,50 +46,11 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
 
 
     suspend fun refreshTitle() {
-        withContext(Dispatchers.IO) {
-            val result = try {
-                network.fetchNextTitle().execute()
-            } catch (cause: Throwable) {
-                throw TitleRefreshError("Unable to fetch title.", cause)
-            }
-
-            yield() // to make coroutine cancellable
-
-            if (result.isSuccessful) {
-                titleDao.insertTitle(Title(result.body()!!))
-            } else {
-                throw TitleRefreshError("Unable to fetch title", null)
-            }
-        }
-    }
-
-    /**
-     * Refresh the current title and save the results to the offline cache.
-     *
-     * This method does not return the new title. Use [TitleRepository.title] to observe
-     * the current tile.
-     */
-    fun refreshTitleWithCallbacks(titleRefreshCallback: TitleRefreshCallback) {
-        // This request will be run on a background thread by retrofit
-        BACKGROUND.submit {
-            try {
-                // Make network request using a blocking call
-                val result = network.fetchNextTitle().execute()
-                if (result.isSuccessful) {
-                    // Save it to database
-                    titleDao.insertTitle(Title(result.body()!!))
-                    // Inform the caller the refresh is completed
-                    titleRefreshCallback.onCompleted()
-                } else {
-                    // If it's not successful, inform the callback of the error
-                    titleRefreshCallback.onError(
-                            TitleRefreshError("Unable to refresh title", null))
-                }
-            } catch (cause: Throwable) {
-                // If anything throws an exception, inform the caller
-                titleRefreshCallback.onError(
-                        TitleRefreshError("Unable to refresh title", cause))
-            }
+        try {
+            val result = network.fetchNextTitle()
+            titleDao.insertTitle(Title(result))
+        } catch (cause: Throwable) {
+            throw TitleRefreshError("Unable to fetch title.", cause)
         }
     }
 }
