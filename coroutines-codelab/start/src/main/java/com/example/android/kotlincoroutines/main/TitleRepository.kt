@@ -47,7 +47,9 @@ class TitleRepository(val network: MainNetwork, val titleDao: TitleDao) {
 
     suspend fun refreshTitle() {
         try {
-            val result = network.fetchNextTitle()
+            val result = withTimeout(5_000) {
+                network.fetchNextTitle()
+            }
             titleDao.insertTitle(Title(result))
         } catch (cause: Throwable) {
             throw TitleRefreshError("Unable to fetch title.", cause)
